@@ -210,9 +210,8 @@ ffmpeg -f lavfi -i "testsrc2=duration=60:size=1280x720:rate=24" `
 
 定稿参数请通过配置透传,不要散落硬编码。
 
-## 与上游的关系
+## 数据边界说明
 
-- 本仓库是播放器侧参考实现,**不属于上游 PR #461([huangxd-/danmu_api](https://github.com/huangxd-/danmu_api))的提交内容**;
 - 示例不解析、不代理 Bilibili 播放地址;浏览器唯一数据入口是 Danmu API 的 `/api/v2/comment`;
 - `examples/fixture.js` 与 `examples/media/test-video.mp4` 均为程序生成的合成数据,仅用于无 API 环境的本地验证;真实链路验证请使用真实 API 与真实数据。
 
