@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>danmux-renderer · 原生 video 接入示例</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 28px 0 44px; background: #0f1220; color: #edf0ff; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .shell { width: min(1080px, calc(100% - 32px)); margin: 0 auto; }
+    h1 { margin: 0 0 6px; font-size: 26px; letter-spacing: -.02em; }
+    p.hint { margin: 0 0 18px; color: #aeb6da; }
+    .grid { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 16px; align-items: start; }
+    .panel { background: #171b2d; border: 1px solid #333b61; border-radius: 14px; padding: 16px; }
+    label { display: grid; gap: 5px; margin-bottom: 11px; color: #aeb6da; font-size: 13px; }
+    input { border: 1px solid #333b61; background: #0d1020; color: #edf0ff; border-radius: 8px; padding: 9px 10px; font: inherit; }
+    button { border: 0; border-radius: 8px; padding: 9px 12px; background: #8f7cff; color: #fff; font: inherit; font-weight: 650; cursor: pointer; }
+    button.secondary { background: #202640; border: 1px solid #333b61; color: #edf0ff; }
+    button:disabled { opacity: .55; cursor: wait; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+    .check { display: flex; align-items: center; gap: 8px; margin: 8px 0 0; color: #edf0ff; font-size: 13px; }
+    .check input { width: auto; }
+    .status { min-height: 20px; margin-top: 10px; color: #aeb6da; font-size: 13px; }
+    .status.error { color: #ff859b; }
+    .status.ok { color: #65d6a3; }
+    .stage { position: relative; overflow: hidden; border-radius: 12px; background: #05070e; aspect-ratio: 16 / 9; }
+    .stage:fullscreen { width: 100vw; height: 100vh; aspect-ratio: auto; border-radius: 0; }
+    video { display: block; width: 100%; height: 100%; object-fit: contain; background: #05070e; }
+    .clock-fallback { position: absolute; inset: 0; display: none; place-items: center; color: #5b648f; font-size: 15px;
+      background: repeating-conic-gradient(#0b0e1a 0% 25%, #11162a 0% 50%) 0 0 / 48px 48px; }
+    .stage.clock-mode .clock-fallback { display: grid; }
+    .stage.clock-mode video { visibility: hidden; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; padding-top: 10px; }
+    .pill { border: 1px solid #333b61; border-radius: 99px; padding: 4px 10px; color: #aeb6da; font-size: 12px; }
+    .stats { display: flex; gap: 8px; margin-top: 12px; }
+    .stat { flex: 1; background: #10152a; border: 1px solid #333b61; border-radius: 10px; padding: 9px 10px; }
+    .stat strong { display: block; font-size: 18px; }
+    .stat span { color: #aeb6da; font-size: 12px; }
+    code { color: #cad1f5; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <h1>danmux-renderer 原生 video 接入</h1>
+    <p class="hint">渲染层来自 <code>../src/</code>:效果契约 → 轨道调度 → Canvas 材质。本页可直接运行(API 模式),也可用合成样例(无网络/API 依赖)。</p>
+    <div class="grid">
+      <section class="panel">
+        <label>Danmu API base URL
+          <input id="api-base" value="http://127.0.0.1:9321/87654321" spellcheck="false">
+        </label>
+        <label>来源 URL(交给 API 转换)
+          <input id="comment-source" value="https://www.bilibili.com/video/BV1GJ411x7h7" spellcheck="false">
+        </label>
+        <label>视频 URL(仅提供时间轴)
+          <input id="video-source" value="./media/test-video.mp4" spellcheck="false">
+        </label>
+        <label>或选择本地视频文件
+          <input id="video-file" type="file" accept="video/*">
+        </label>
+        <div class="actions">
+          <button id="load-api" type="button">从 Danmu API 获取</button>
+          <button id="load-fixture" type="button" class="secondary">加载合成样例</button>
+        </div>
+        <label class="check"><input id="use-effects" type="checkbox" checked> 识别 danmux.effects 渐变</label>
+        <label class="check"><input id="gradient-only" type="checkbox" checked> 只显示渐变弹幕</label>
+        <p id="status" class="status">默认视频是本地生成的测试视频(60 秒);也可选本地视频文件,播放时弹幕实时叠加。</p>
+      </section>
+      <section class="panel">
+        <!-- 全屏必须对「视频+弹幕层」的共同父容器 stage 请求,而不是对 <video> 本身;
+             否则浏览器只会全屏视频,弹幕 canvas 会留在页面里。 -->
+        <div class="stage" id="stage">
+          <video id="video" controls controlsList="nofullscreen" playsinline preload="metadata" loop></video>
+          <div class="clock-fallback">时钟演示模式(视频不可用,渲染器由 tick() 驱动)</div>
+        </div>
+        <div class="toolbar">
+          <span class="pill" id="frame-pill">等待数据</span>
+          <button id="fullscreen" type="button" class="secondary">进入全屏</button>
+        </div>
+        <div class="stats">
+          <div class="stat"><strong id="total">0</strong><span>评论</span></div>
+          <div class="stat"><strong id="gradients">0</strong><span>gradient effects</span></div>
+          <div class="stat"><strong id="clock">video</strong><span>时间源</span></div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script type="module">
+    import { DanmuxCanvasRenderer } from '../src/index.js';
+    import { buildFixtureComments } from './fixture.js';
+
+    const $ = (id) => document.getElementById(id);
+    const stage = $('stage');
+    const video = $('video');
+    let renderer = null;
+    // 时钟模式:视频不可用时,用 rAF 推进一个 0..60s 循环的虚拟时间轴,
+    // 演示 getTime/tick 这条「播放器不暴露 <video>」的接入路径。
+    let clock = null;
+    let lastPayload = null;
+
+    function createRenderer(useClock = false) {
+      renderer?.destroy();
+      if (useClock) {
+        renderer = new DanmuxCanvasRendererWithClock();
+      } else {
+        renderer = new DanmuxCanvasRenderer({ container: stage, video });
+      }
+      renderer.setOptions({
+        useEffects: $('use-effects').checked,
+        gradientOnly: $('gradient-only').checked,
+      });
+      renderer.onFrame = (stats) => {
+        $('frame-pill').textContent = `本帧:effects ${stats.effects} / fallback ${stats.fallback}`;
+      };
+    }
+
+    class DanmuxCanvasRendererWithClock extends DanmuxCanvasRenderer {
+      constructor() {
+        const startedAt = performance.now();
+        super({
+          container: stage,
+          getTime: () => ((performance.now() - startedAt) / 1000) % 60,
+        });
+        const tickLoop = () => { this.tick(this.getTime()); clock.raf = requestAnimationFrame(tickLoop); };
+        clock = { raf: requestAnimationFrame(tickLoop) };
+        $('clock').textContent = 'tick()';
+      }
+      destroy() {
+        cancelAnimationFrame(clock.raf);
+        clock = null;
+        $('clock').textContent = 'video';
+        super.destroy();
+      }
+    }
+
+    function applyPayload(payload, label, useClock = false) {
+      lastPayload = payload;
+      createRenderer(useClock);
+      const stats = renderer.load(payload);
+      $('total').textContent = String(stats.total);
+      $('gradients').textContent = String(stats.withGradient);
+      $('status').className = 'status ok';
+      $('status').textContent = `${label}:共 ${stats.total} 条,其中 ${stats.withGradient} 条带 gradient effect。`;
+    }
+
+    async function loadFromApi() {
+      const button = $('load-api');
+      const apiBase = $('api-base').value.trim().replace(/\/+$/, '');
+      const sourceUrl = $('comment-source').value.trim();
+      button.disabled = true;
+      $('status').className = 'status';
+      $('status').textContent = '正在请求 Danmu API…';
+      try {
+        const endpoint = `${apiBase}/api/v2/comment?url=${encodeURIComponent(sourceUrl)}&format=danmux&duration=true`;
+        const response = await fetch(endpoint, { headers: { Accept: 'application/json' } });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (payload?.format !== 'danmux' || payload?.schemaVersion !== 1) {
+          throw new Error('响应不是 danmux v1,请检查 API 的 format=danmux 参数与版本。');
+        }
+        applyPayload(payload, 'Danmu API 已返回');
+      } catch (error) {
+        $('status').className = 'status error';
+        $('status').textContent = `获取失败:${error.message}`;
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    $('load-api').addEventListener('click', loadFromApi);
+    $('load-fixture').addEventListener('click', () => applyPayload(buildFixtureComments(), '合成样例已加载'));
+    $('fullscreen').addEventListener('click', async () => {
+      if (document.fullscreenElement) await document.exitFullscreen();
+      else await stage.requestFullscreen();
+    });
+    $('use-effects').addEventListener('change', (event) => renderer?.setOptions({ useEffects: event.target.checked }));
+    $('gradient-only').addEventListener('change', (event) => renderer?.setOptions({ gradientOnly: event.target.checked }));
+    video.addEventListener('error', () => {
+      if (clock) return;
+      stage.classList.add('clock-mode');
+      applyPayload(buildFixtureComments(), '视频不可用,已切换时钟模式', true);
+    });
+    // 本地视频:切回 video 时间源;已加载的弹幕保持不变
+    $('video-file').addEventListener('change', (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      stage.classList.remove('clock-mode');
+      video.src = URL.createObjectURL(file);
+      video.load();
+      if (lastPayload) applyPayload(lastPayload, `本地视频已就绪:${file.name}`);
+    });
+    video.src = $('video-source').value;
+  </script>
+</body>
+</html>

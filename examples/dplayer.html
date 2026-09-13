@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>danmux-renderer · DPlayer 接入模板</title>
+  <style>
+    body { margin: 0; padding: 24px; background: #0f1220; color: #edf0ff; font: 15px/1.5 system-ui, sans-serif; }
+    .player-shell { position: relative; max-width: 960px; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <h1>DPlayer 接入模板</h1>
+  <p>关闭 DPlayer 自带弹幕(danmaku 不传即可),改由 danmux-renderer 接管;时间源用 DPlayer 内部的 <code>&lt;video&gt;</code>。</p>
+
+  <!-- shell 是渲染器挂载点;DPlayer 的控制条在自身层内,z-index 可按需调整 -->
+  <div class="player-shell" id="shell">
+    <div id="dplayer" style="width:100%;height:100%"></div>
+  </div>
+
+  <script src="https://unpkg.com/dplayer@1/dist/DPlayer.min.js"></script>
+  <script type="module">
+    import { DanmuxCanvasRenderer } from '../src/index.js';
+
+    const shell = document.getElementById('shell');
+    const dp = new DPlayer({
+      container: document.getElementById('dplayer'),
+      video: { url: 'https://media.w3.org/2010/05/sintel/trailer.mp4' },
+      // 不配置 danmaku 选项即关闭内置弹幕,避免与渲染层叠加
+    });
+
+    const video = shell.querySelector('video');
+    const renderer = new DanmuxCanvasRenderer({ container: shell, video, zIndex: 5 });
+
+    const API_BASE = 'http://127.0.0.1:9321/87654321';
+    const SOURCE_URL = 'https://www.bilibili.com/video/BV1GJ411x7h7';
+    fetch(`${API_BASE}/api/v2/comment?url=${encodeURIComponent(SOURCE_URL)}&format=danmux`)
+      .then((response) => response.json())
+      .then((payload) => renderer.load(payload))
+      .catch((error) => console.error('Danmu API 获取失败:', error));
+  </script>
+</body>
+</html>
