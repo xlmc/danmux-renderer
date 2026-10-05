@@ -21,8 +21,12 @@ console.log('Packed root and paint imports passed without DOM');`;
  for(const file of ['types/index.d.ts','types/paint.d.ts','vendor/danmux/LICENSE','vendor/danmux/manifest.json',
   'mobile/README.md','mobile/android/README.md',
   'mobile/android/src/main/kotlin/io/github/xlmc/danmu/gradient/GradientStyle.kt',
-  'mobile/android/src/main/kotlin/io/github/xlmc/danmu/gradient/GradientPainter.kt']) readFileSync(join(consumer,'node_modules/danmux-renderer',file));
+  'mobile/android/src/main/kotlin/io/github/xlmc/danmu/gradient/GradientPainter.kt',
+  'mobile/apple/README.md',
+  'mobile/apple/Sources/GradientReference/GradientStyle.swift',
+  'mobile/apple/Sources/GradientReference/GradientPainter.swift']) readFileSync(join(consumer,'node_modules/danmux-renderer',file));
  if(pack.files.some(file=>/^mobile\/android\/(build|\.gradle)\//.test(file.path))) throw Error('Android build artifacts must not be packaged');
+ if(pack.files.some(file=>/^mobile\/apple\/(\.build|\.swiftpm|Tests)\//.test(file.path))) throw Error('Apple build artifacts must not be packaged');
  writeFileSync(join(consumer,'consumer.ts'),readFileSync(new URL('./typecheck.ts',import.meta.url)));
  execFileSync(process.execPath,[resolve('node_modules/typescript/lib/tsc.js'),'--noEmit','--strict','--module','nodenext','--target','ES2022',join(consumer,'consumer.ts')],{cwd:process.cwd(),encoding:'utf8'});
  console.log(`Package verified: ${pack.filename}; ${pack.files.length} files`);

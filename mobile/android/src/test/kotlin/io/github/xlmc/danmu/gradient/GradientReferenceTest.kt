@@ -24,7 +24,7 @@ class GradientReferenceTest {
         GradientStop(0.0, 0xff0000, alpha), GradientStop(1.0, 0x0000ff, alpha)))
 
     @Test fun sharedContractMatchesJsIncludingCanonicalStops() {
-        val stream = javaClass.classLoader!!.getResourceAsStream("android-contract.json")!!
+        val stream = javaClass.classLoader!!.getResourceAsStream("native-contract.json")!!
         val cases = JSONArray(stream.bufferedReader().use { it.readText() })
         assertTrue("contract should cover shared and mobile edge cases", cases.length() >= 30)
         for (index in 0 until cases.length()) {

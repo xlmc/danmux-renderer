@@ -4,7 +4,7 @@
 
 | 需要参考的实现 | 代码 |
 | --- | --- |
-| 移动端解析、文字准备与填充接入 | [移动端参考](../mobile/README.md) / [Android 源码与用法](../mobile/android/README.md) |
+| iOS / Android / PC 的解析、文字准备与填充接入 | [通用原生参考](NATIVE_INTEGRATION.md) / [Kotlin](../mobile/android/README.md) / [Swift](../mobile/apple/README.md) / [PC](DESKTOP_INTEGRATION.md) |
 | 效果读取与校验 | [gradient-effect.js](../src/gradient-effect.js) |
 | 单条 Canvas 绘制、渐变方向与端点 | [canvas-painter.js](../src/canvas-painter.js) |
 | 白芯、描边、透明度和高光等视觉参数 | [material.js](../src/material.js) |

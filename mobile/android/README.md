@@ -1,6 +1,6 @@
 # Android 渐变填充参考
 
-这两个 Kotlin 文件可复制进现有 Android 工程并调整 package，也可将本目录作为本地 Android library 使用。运行时只依赖 Android SDK 与 Kotlin 标准库；没有新增网络、播放器或渲染引擎依赖。完整接入说明见 [danmu_api 移动端指南](https://github.com/xlmc/danmu_api/blob/main/docs/mobile-gradient-integration.md)。
+这两个 Kotlin 文件可复制进现有 Android 工程并调整 package，也可将本目录作为本地 Android library 使用。运行时只依赖 Android SDK 与 Kotlin 标准库；没有新增网络、播放器或渲染引擎依赖。完整接入说明见 [danmu_api 通用客户端指南](https://github.com/xlmc/danmu_api/blob/main/docs/client-gradient-integration.md)。
 
 - [GradientStyle.kt](src/main/kotlin/io/github/xlmc/danmu/gradient/GradientStyle.kt)：读取可选扩展，校验线性填充，稳定排序色标和计算端点。
 - [GradientPainter.kt](src/main/kotlin/io/github/xlmc/danmu/gradient/GradientPainter.kt)：准备 shader，在宿主绘制期间应用并恢复。
@@ -68,6 +68,6 @@ drawFill 临时平移 Canvas、设置 Paint.shader，并在正常返回或异常
 gradle -p mobile/android testDebugUnitTest assembleDebug
 ```
 
-Gradle 使用 `scripts/android-contract.mjs` 从共享 fixtures 和现有 JS 验证器生成测试期预期数据，Kotlin 测试比较接受/降级结果及规范化角度、色标。补充 JSON 缓存/偏移传递测试和 Robolectric API 34 native graphics 测试，覆盖方向、透明度、共享画笔恢复和实际文字填充。可用 `-PartifactDir=/absolute/output/path` 导出文字预览 PNG；默认不输出图片。
+Gradle 使用 `scripts/native-contract.mjs` 从共享 fixtures 和现有 JS 验证器生成测试期预期数据，与 Swift 共用相同输入和预期。Kotlin 测试比较接受/降级结果及规范化角度、色标。补充 JSON 缓存/偏移传递测试和 Robolectric API 34 native graphics 测试，覆盖方向、透明度、共享画笔恢复和实际文字填充。可用 `-PartifactDir=/absolute/output/path` 导出文字预览 PNG；默认不输出图片。
 
 这是参考库测试，不是 Sen/Hills 或任何实际播放器的播放、拖动、合并、低端设备性能验收。接入后按 API 指南在宿主构建中检查。

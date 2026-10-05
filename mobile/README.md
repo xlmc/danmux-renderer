@@ -1,6 +1,6 @@
-# 移动端渐变实现参考
+# 移动端与 Apple 桌面参考入口
 
-接入字段、开关和降级规则以 [danmu_api 移动端接入说明](https://github.com/xlmc/danmu_api/blob/main/docs/mobile-gradient-integration.md) 为准。本目录提供独立于播放器的绘制参考，不创建播放器、轨道、网络客户端或缓存系统。
+接入字段、开关和降级规则以 [danmu_api 通用客户端指南](https://github.com/xlmc/danmu_api/blob/main/docs/client-gradient-integration.md) 为准。iOS、Android 与 PC 的统一绘制入口索引见 [通用原生绘制参考](../docs/NATIVE_INTEGRATION.md)。本目录保存 Kotlin 和 iOS/macOS 共用的 Swift 参考代码。
 
 ## 两个可替换的入口
 
@@ -17,7 +17,7 @@
 | Flutter 文本/Canvas | 使用已度量文字框创建 `Gradient.createShader` | 将 shader 用于文字前景 Paint；已有图片/图集路径在生成文字图像时应用 |
 | iOS Core Graphics | 使用色标创建 `CGGradient`，计算文字框内端点 | 利用原文字绘制生成文字裁剪/蒙版，再绘制渐变；宿主管理基线和图形状态 |
 
-当前可构建代码是 [Android/Kotlin 参考](android/README.md)。Flutter/iOS 行是 API 映射方向，不代表提供了可运行移植或客户端兼容验证。实现图片缓存的播放器可在原光栅化阶段应用渐变，继续使用自己的图片移动、图集和淘汰机制。
+源码实现见 [Android/Kotlin](android/README.md) 与 [iOS/macOS Swift](apple/README.md)。PC 绘制片段见 [桌面接入](../docs/DESKTOP_INTEGRATION.md)。实现图片缓存的播放器可在原光栅化阶段应用渐变，继续使用自己的图片移动、图集和淘汰机制。Flutter 行是 API 映射方向，不代表已有完整移植或客户端兼容验证。
 
 ## 参考来源与适用边界
 

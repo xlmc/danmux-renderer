@@ -41,5 +41,5 @@ add('16-stops', c => { c.danmux.effects[0].source.stops = Array.from({ length: 1
 const output = cases.map(({ name, comment }) => ({ name, comment, expectedFill: readCommentStyle(comment).fill }));
 const directory = resolve(process.argv[2] ?? 'mobile/android/build/generated/contract');
 mkdirSync(directory, { recursive: true });
-writeFileSync(resolve(directory, 'android-contract.json'), JSON.stringify(output, null, 2) + '\n');
+writeFileSync(resolve(directory, 'native-contract.json'), JSON.stringify(output, null, 2) + '\n');
 console.log(`Native contract: ${output.length} cases from shared fixtures and JS validator`);

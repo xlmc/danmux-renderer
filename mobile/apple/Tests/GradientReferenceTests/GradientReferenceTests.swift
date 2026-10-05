@@ -16,7 +16,8 @@ final class GradientReferenceTests: XCTestCase {
     }
     private func pixel(_ context: CGContext, _ x: Int, _ y: Int) -> [UInt8] {
         let bytes = context.data!.assumingMemoryBound(to: UInt8.self)
-        let offset = y * context.bytesPerRow + x * 4
+        // Bitmap storage rows run top-to-bottom; test coordinates follow CGContext's y-up space.
+        let offset = (context.height - 1 - y) * context.bytesPerRow + x * 4
         return Array(UnsafeBufferPointer(start: bytes + offset, count: 4))
     }
     private func solidMask() -> CGImage {
@@ -27,7 +28,7 @@ final class GradientReferenceTests: XCTestCase {
     }
 
     func testSharedContractMatchesJS() throws {
-        let url = try XCTUnwrap(Bundle.module.url(forResource: "android-contract", withExtension: "json"))
+        let url = try XCTUnwrap(Bundle.module.url(forResource: "native-contract", withExtension: "json"))
         let cases = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [[String: Any]])
         XCTAssertGreaterThanOrEqual(cases.count, 40)
         for item in cases {
