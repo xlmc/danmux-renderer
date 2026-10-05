@@ -32,12 +32,12 @@
     });
 
     const video = shell.querySelector('video');
-    const renderer = new DanmuxCanvasRenderer({ container: shell, video, zIndex: 5 });
+    const renderer = new DanmuxCanvasRenderer({ container: shell, video, zIndex: 5, material: { profile: 'bilibili' } });
 
     // 数据入口与原生示例完全一致:唯一来源是 Danmu API 的 /api/v2/comment。
     const API_BASE = 'http://127.0.0.1:9321/87654321';
     const SOURCE_URL = 'https://www.bilibili.com/video/BV1GJ411x7h7';
-    fetch(`${API_BASE}/api/v2/comment?url=${encodeURIComponent(SOURCE_URL)}&format=danmux`)
+    fetch(`${API_BASE}/api/v2/comment?url=${encodeURIComponent(SOURCE_URL)}`)
       .then((response) => response.json())
       .then((payload) => renderer.load(payload))
       .catch((error) => console.error('Danmu API 获取失败:', error));

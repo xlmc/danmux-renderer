@@ -1,3 +1,5 @@
+import { validateGradientEffect, canonicalizeGradientEffect } from '../vendor/danmux/src/effects/gradient.js';
+import { EXTENSION_VERSION, MAX_EFFECTS } from '../vendor/danmux/src/constants.js';
 /**
  * DanmuX effect 契约层 —— 解析、校验、颜色工具。
  *
@@ -24,6 +26,7 @@ export function clamp01(value) {
 /** dandanplay `p` 第三字段:十进制 RGB888 或 #RRGGBB;非法值回落白色。 */
 export function cssColor(raw) {
   const text = String(raw ?? '').trim();
+  if (!text) return '#ffffff';
   if (/^#[0-9a-f]{6}$/i.test(text)) return text;
   if (/^#[0-9a-f]{8}$/i.test(text)) return text.slice(0, 7);
   const number = Number(text);
@@ -40,24 +43,43 @@ export function normalizeAngle(value) {
 
 /**
  * 从 effects 数组中找出第一个可渲染的 gradient-linear-v1 effect。
- * 校验比 JSON Schema 更严格:stops 至少 2 个、position 在 [0,1]、
+ * 使用 DanmuX 上游验证器:stops 为 2..16 个、position 在 [0,1]、
  * color 必须是 #RRGGBB。任何字段不满足都整体判为不支持(不做部分降级),
  * 这样播放器实现之间不会出现"同一份数据两种渲染结果"。
  */
-export function findLinearGradientEffect(effects) {
-  if (!Array.isArray(effects)) return null;
-  return effects.find((effect) => {
-    const source = effect?.source;
-    return effect?.type === 'gradient'
-      && effect?.target === 'fill'
-      && source?.type === 'linear'
-      && Array.isArray(source.stops)
-      && source.stops.length >= 2
-      && source.stops.every((stop) => /^#[0-9a-f]{6}$/i.test(String(stop?.color ?? '').trim())
-        && Number.isFinite(Number(stop?.position))
-        && Number(stop.position) >= 0
-        && Number(stop.position) <= 1);
-  }) ?? null;
+export function findLinearGradientEffect(effects, target = 'fill') {
+  if (!Array.isArray(effects) || effects.length > MAX_EFFECTS) return null;
+  const effect = effects.find(effect => effect?.target === target
+    && effect?.source?.type === 'linear' && validateGradientEffect(effect).ok);
+  return effect ? canonicalizeGradientEffect(effect) : null;
+}
+
+/** Version-gated optional style; unknown/invalid effects never replace Base. */
+export function readCommentStyle(comment) {
+  const diagnostics = [];
+  const extension = comment?.danmux;
+  if (!extension) return { fill: null, stroke: null, diagnostics };
+  if (extension.extensionVersion !== EXTENSION_VERSION) {
+    return { fill: null, stroke: null, diagnostics: [{ code: 'unsupported_extension_version' }] };
+  }
+  if (extension.effects === undefined) return { fill: null, stroke: null, diagnostics };
+  if (!Array.isArray(extension.effects) || extension.effects.length > MAX_EFFECTS) {
+    return { fill: null, stroke: null, diagnostics: [{ code: 'invalid_effects' }] };
+  }
+  const effects = [];
+  const targets = new Set();
+  for (const effect of extension.effects) {
+    const result = validateGradientEffect(effect);
+    if (!result.ok || effect?.source?.type !== 'linear') {
+      diagnostics.push(...(result.ok ? [{ code: 'unsupported_effect' }] : result.diagnostics));
+      continue;
+    }
+    if (targets.has(effect.target)) { diagnostics.push({ code: 'duplicate_target' }); continue; }
+    targets.add(effect.target);
+    effects.push(canonicalizeGradientEffect(effect));
+  }
+  return { fill: effects.find(e => e.target === 'fill') ?? null,
+    stroke: effects.find(e => e.target === 'stroke') ?? null, diagnostics };
 }
 
 /**
@@ -78,7 +100,8 @@ export function rgbaColor(value, alpha = 1, whiteMix = 0) {
 /** 把一条 wire 评论解析成渲染层内部形态;p 非法字段一律安全回落。 */
 export function parseWireComment(comment, index) {
   const fields = String(comment?.p ?? '').split(',');
-  const effects = Array.isArray(comment?.danmux?.effects) ? comment.danmux.effects : [];
+  const style = readCommentStyle(comment);
+  const effects = [style.fill, style.stroke].filter(Boolean);
   const item = {
     index,
     time: Math.max(0, Number(fields[0]) || 0),
@@ -87,8 +110,9 @@ export function parseWireComment(comment, index) {
     text: String(comment?.m ?? ''),
     effects,
     raw: comment,
+    diagnostics: style.diagnostics,
   };
-  item.hasGradient = Boolean(findLinearGradientEffect(item.effects));
+  item.hasGradient = effects.length > 0;
   return item;
 }
 

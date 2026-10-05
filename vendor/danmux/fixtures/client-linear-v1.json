@@ -1,0 +1,349 @@
+[
+  {
+    "name": "ordinary",
+    "comment": {
+      "p": "1.5,1,0,[fixture]",
+      "m": "普通黑色"
+    },
+    "fill": false,
+    "stroke": false
+  },
+  {
+    "name": "linear-fill",
+    "comment": {
+      "p": "1.5,1,16777215,[fixture]",
+      "m": "共享渐变样例",
+      "danmux": {
+        "extensionVersion": 1,
+        "effects": [
+          {
+            "type": "gradient",
+            "target": "fill",
+            "origin": "generated",
+            "source": {
+              "type": "linear",
+              "angle": 0,
+              "stops": [
+                {
+                  "position": 0,
+                  "color": "#FB7299",
+                  "alpha": 0.85
+                },
+                {
+                  "position": 1,
+                  "color": "#33B8FF",
+                  "alpha": 0.85
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "fill": true,
+    "stroke": false
+  },
+  {
+    "name": "unknown-version",
+    "comment": {
+      "p": "1.5,1,16777215,[fixture]",
+      "m": "共享渐变样例",
+      "danmux": {
+        "extensionVersion": 99,
+        "effects": [
+          {
+            "type": "gradient",
+            "target": "fill",
+            "origin": "generated",
+            "source": {
+              "type": "linear",
+              "angle": 0,
+              "stops": [
+                {
+                  "position": 0,
+                  "color": "#FB7299",
+                  "alpha": 0.85
+                },
+                {
+                  "position": 1,
+                  "color": "#33B8FF",
+                  "alpha": 0.85
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "fill": false,
+    "stroke": false
+  },
+  {
+    "name": "bad-alpha",
+    "comment": {
+      "p": "1.5,1,16777215,[fixture]",
+      "m": "共享渐变样例",
+      "danmux": {
+        "extensionVersion": 1,
+        "effects": [
+          {
+            "type": "gradient",
+            "target": "fill",
+            "origin": "generated",
+            "source": {
+              "type": "linear",
+              "angle": 0,
+              "stops": [
+                {
+                  "position": 0,
+                  "color": "#FB7299",
+                  "alpha": 2
+                },
+                {
+                  "position": 1,
+                  "color": "#33B8FF",
+                  "alpha": 0.85
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "fill": false,
+    "stroke": false
+  },
+  {
+    "name": "bad-angle",
+    "comment": {
+      "p": "1.5,1,16777215,[fixture]",
+      "m": "共享渐变样例",
+      "danmux": {
+        "extensionVersion": 1,
+        "effects": [
+          {
+            "type": "gradient",
+            "target": "fill",
+            "origin": "generated",
+            "source": {
+              "type": "linear",
+              "angle": "0",
+              "stops": [
+                {
+                  "position": 0,
+                  "color": "#FB7299",
+                  "alpha": 0.85
+                },
+                {
+                  "position": 1,
+                  "color": "#33B8FF",
+                  "alpha": 0.85
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "fill": false,
+    "stroke": false
+  },
+  {
+    "name": "bad-position",
+    "comment": {
+      "p": "1.5,1,16777215,[fixture]",
+      "m": "共享渐变样例",
+      "danmux": {
+        "extensionVersion": 1,
+        "effects": [
+          {
+            "type": "gradient",
+            "target": "fill",
+            "origin": "generated",
+            "source": {
+              "type": "linear",
+              "angle": 0,
+              "stops": [
+                {
+                  "position": -1,
+                  "color": "#FB7299",
+                  "alpha": 0.85
+                },
+                {
+                  "position": 1,
+                  "color": "#33B8FF",
+                  "alpha": 0.85
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "fill": false,
+    "stroke": false
+  },
+  {
+    "name": "too-many-stops",
+    "comment": {
+      "p": "1.5,1,16777215,[fixture]",
+      "m": "共享渐变样例",
+      "danmux": {
+        "extensionVersion": 1,
+        "effects": [
+          {
+            "type": "gradient",
+            "target": "fill",
+            "origin": "generated",
+            "source": {
+              "type": "linear",
+              "angle": 0,
+              "stops": [
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                },
+                {
+                  "position": 0,
+                  "color": "#FFFFFF"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "fill": false,
+    "stroke": false
+  },
+  {
+    "name": "stroke",
+    "comment": {
+      "p": "1.5,1,16777215,[fixture]",
+      "m": "共享渐变样例",
+      "danmux": {
+        "extensionVersion": 1,
+        "effects": [
+          {
+            "type": "gradient",
+            "target": "stroke",
+            "origin": "generated",
+            "source": {
+              "type": "linear",
+              "angle": 0,
+              "stops": [
+                {
+                  "position": 0,
+                  "color": "#FB7299",
+                  "alpha": 0.85
+                },
+                {
+                  "position": 1,
+                  "color": "#33B8FF",
+                  "alpha": 0.85
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "fill": false,
+    "stroke": true
+  },
+  {
+    "name": "texture-fallback",
+    "comment": {
+      "p": "1.5,1,16777215,[fixture]",
+      "m": "共享渐变样例",
+      "danmux": {
+        "extensionVersion": 1,
+        "effects": [
+          {
+            "type": "gradient",
+            "target": "fill",
+            "origin": "generated",
+            "source": {
+              "type": "texture",
+              "uri": "https://example.com/texture.png"
+            }
+          }
+        ]
+      }
+    },
+    "fill": false,
+    "stroke": false
+  },
+  {
+    "name": "versioned-base-only",
+    "comment": {
+      "p": "1,1,16777215,[fixture]",
+      "m": "Base only",
+      "danmux": {
+        "extensionVersion": 1
+      }
+    },
+    "fill": false,
+    "stroke": false
+  }
+]

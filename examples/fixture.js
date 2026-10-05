@@ -32,6 +32,7 @@ export function buildFixtureComments(duration = 60) {
           p: `${time},1,16777215,${index}`,
           m: text,
           danmux: {
+            extensionVersion: 1,
             effects: [{
               type: 'gradient', origin: 'generated', target: 'fill',
               source: { type: 'linear', angle: 0, stops: FIXTURE_STOPS.map((stop) => ({ ...stop })) },
@@ -44,6 +45,7 @@ export function buildFixtureComments(duration = 60) {
           p: `${time},1,65280,${index}`,
           m: `${text}(非法 effect → p fallback)`,
           danmux: {
+            extensionVersion: 1,
             effects: [{
               type: 'gradient', target: 'fill',
               source: { type: 'linear', angle: 0, stops: [{ position: 0, color: 'oops' }, { position: 1, color: '#33B8FF' }] },
@@ -59,6 +61,7 @@ export function buildFixtureComments(duration = 60) {
           p: `${time},4,16777215,${index}`,
           m: `${text}(底部渐变)`,
           danmux: {
+            extensionVersion: 1,
             effects: [{
               type: 'gradient', origin: 'generated', target: 'fill',
               source: { type: 'linear', angle: 0, stops: FIXTURE_STOPS.map((stop) => ({ ...stop })) },

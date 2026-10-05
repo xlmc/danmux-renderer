@@ -1,0 +1,11 @@
+import { drawDanmuxComment, readCommentStyle, type WireComment } from 'danmux-renderer/paint';
+import { DanmuxCanvasRenderer, parseWireComments, planFrame, DEFAULT_LAYOUT } from 'danmux-renderer';
+declare const ctx: CanvasRenderingContext2D;
+declare const container: HTMLElement;
+const comment: WireComment = {p:'1,1,0,[fixture]',m:'type fixture'};
+const style = readCommentStyle(comment);
+const result = drawDanmuxComment(ctx,comment,{x:1,y:2,material:{profile:'wire',halo:{shadow:{alpha:0.2}}}});
+const renderer = new DanmuxCanvasRenderer({container,material:{profile:'bilibili'}});
+renderer.load({comments:[comment]}); renderer.setOptions({useEffects:false}); renderer.destroy();
+planFrame(parseWireComments([comment]),2,{width:800,height:400,fontSize:25},DEFAULT_LAYOUT,()=>({width:100,height:30}));
+void style; void result;

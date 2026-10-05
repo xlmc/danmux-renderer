@@ -105,7 +105,7 @@
       if (useClock) {
         renderer = new DanmuxCanvasRendererWithClock();
       } else {
-        renderer = new DanmuxCanvasRenderer({ container: stage, video });
+        renderer = new DanmuxCanvasRenderer({ container: stage, video, material: { profile: 'bilibili' } });
       }
       renderer.setOptions({
         useEffects: $('use-effects').checked,
@@ -121,6 +121,7 @@
         const startedAt = performance.now();
         super({
           container: stage,
+          material: { profile: 'bilibili' },
           getTime: () => ((performance.now() - startedAt) / 1000) % 60,
         });
         const tickLoop = () => { this.tick(this.getTime()); clock.raf = requestAnimationFrame(tickLoop); };
@@ -153,12 +154,12 @@
       $('status').className = 'status';
       $('status').textContent = '正在请求 Danmu API…';
       try {
-        const endpoint = `${apiBase}/api/v2/comment?url=${encodeURIComponent(sourceUrl)}&format=danmux&duration=true`;
+        const endpoint = `${apiBase}/api/v2/comment?url=${encodeURIComponent(sourceUrl)}&duration=true`;
         const response = await fetch(endpoint, { headers: { Accept: 'application/json' } });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const payload = await response.json();
-        if (payload?.format !== 'danmux' || payload?.schemaVersion !== 1) {
-          throw new Error('响应不是 danmux v1,请检查 API 的 format=danmux 参数与版本。');
+        if (!Array.isArray(payload?.comments)) {
+          throw new Error('响应缺少 comments 数组，请检查 API 地址。');
         }
         applyPayload(payload, 'Danmu API 已返回');
       } catch (error) {

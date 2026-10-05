@@ -1,0 +1,41 @@
+{
+  "name": "danmux-renderer",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Optional DanmuX effect paint hooks and full Web Canvas renderer",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "src/",
+    "vendor/",
+    "types/",
+    "docs/",
+    "examples/",
+    "LICENSE",
+    "README.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./src/index.js"
+    },
+    "./paint": {
+      "types": "./types/paint.d.ts",
+      "import": "./src/paint.js"
+    }
+  },
+  "types": "./types/index.d.ts",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/index.js && node --test",
+    "demo": "node serve.mjs",
+    "check:contract": "node scripts/check-contract.mjs",
+    "check:package": "node scripts/check-package.mjs",
+    "typecheck": "tsc --noEmit --strict --module nodenext --target ES2022 scripts/typecheck.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

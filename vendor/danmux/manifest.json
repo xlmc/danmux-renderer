@@ -1,0 +1,12 @@
+{
+  "repository": "https://github.com/xlmc/danmux",
+  "commit": "e8e66dbdd1fedfc6d7dea399ec5434060410170f",
+  "files": {
+    "src/constants.js": "ffe0cbc67d7d91aeee4602b4f3f1bf22bbe8b1ee5ed6c75044a8ea52451e1729",
+    "src/diagnostics.js": "d4b926fd5a1526b6f0dada9ea7226b1c0a2ffcb23748ca6685a838172af85ca6",
+    "src/utils.js": "4fa8ed6171fcad28d8d958d36ef300b4249b7fed90786dc15981714fadf77db9",
+    "src/effects/gradient.js": "e9f6feedcaa2d12b06750e5e22d461e3795e2edaf2dbdba37af0f0eea1fdc173",
+    "LICENSE": "f062f6bbf29499f200e973e1c51ce73d960a792ca095fb546929633a0d1dce8d",
+    "fixtures/client-linear-v1.json": "1a33ba5dba597427ba3be83f4ff1d88b8c3951f1bc638ee54eb474d3ed34e329"
+  }
+}

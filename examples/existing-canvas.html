@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DanmuX · 现有绘制入口接入</title>
+<style>body{background:#0b1220;color:#e5eaf4;font:16px system-ui;margin:32px auto;max-width:960px;padding:0 20px}h1{font-size:30px}p{color:#abb9cd;line-height:1.7}fieldset{border:1px solid #34435e;border-radius:12px;display:flex;gap:20px;flex-wrap:wrap;padding:18px}select,button{background:#1e2e48;color:white;border:1px solid #617899;border-radius:6px;padding:8px}canvas{width:100%;background:#121e32;border:1px solid #34435e;border-radius:12px;margin:20px 0}pre{white-space:pre-wrap;color:#8ee2b5}</style>
+<h1>现有弹幕系统 · 只接入效果绘制</h1>
+<p>同一块宿主 Canvas、同一套位置与字体。组件不创建画布、不请求数据、不调度弹幕；未支持的效果由宿主原有绘制兜底。</p>
+<fieldset><label>效果模式 <select id="mode"><option value="enabled">开启渐变</option><option value="disabled">关闭渐变</option><option value="invalid">非法效果</option><option value="unknown">未知版本</option></select></label>
+<label>材质 <select id="profile"><option value="wire">协议填充</option><option value="bilibili">B 站风格预设</option></select></label>
+<label>角度 <select id="angle"><option>0</option><option>90</option><option>180</option><option>270</option></select></label><button id="draw">重新绘制</button></fieldset>
+<canvas id="canvas" width="960" height="360"></canvas><pre id="status"></pre>
+<p>此页验证 Web 绘制桥接，不代表 Sen/Hills 原生接入。完整调度示例：<a href="native-video.html">原生 video 示例</a>。</p>
+<script type="module">
+import { drawDanmuxComment } from '../src/paint.js';
+const canvas=document.querySelector('#canvas'),ctx=canvas.getContext('2d');
+function render(){
+ ctx.clearRect(0,0,960,360);ctx.font='bold 40px system-ui';ctx.globalAlpha=1;ctx.textBaseline='middle';
+ const mode=document.querySelector('#mode').value,profile=document.querySelector('#profile').value,angle=Number(document.querySelector('#angle').value);
+ const comment={p:'1,1,16777215,[fixture]',m:'轻量接入 · 渐变弹幕',danmux:{extensionVersion:mode==='unknown'?99:1,effects:[{type:'gradient',target:'fill',origin:'generated',source:{type:'linear',angle,stops:[{position:0,color:mode==='invalid'?'invalid':'#FB7299',alpha:0.85},{position:1,color:'#33B8FF',alpha:0.85}]}}]}};
+ if(mode==='disabled')delete comment.danmux;
+ function hostDraw(c,x,y){ const result=drawDanmuxComment(ctx,c,{x,y,fontSize:40,material:{profile}});if(!result.handled){ctx.fillStyle='#ffffff';ctx.fillText(c.m,x,y);}return result; }
+ const r=hostDraw(comment,60,100);hostDraw({p:'1,1,16777215,[fixture]',m:'普通弹幕 · 仍由宿主绘制'},60,210);
+ ctx.font='18px system-ui';ctx.fillStyle='#91a8c8';ctx.fillText('单一画布 / 宿主坐标 / 原有字体 / 无额外调度',60,310);
+ document.querySelector('#status').textContent=`${r.enhanced?'渐变绘制':'宿主单色降级'} · ${profile} · ${angle}°
+Canvas 数量：${document.querySelectorAll('canvas').length}；诊断：${r.diagnostics.map(d=>d.code).join(', ')||'无'}`;
+}
+document.querySelector('#draw').addEventListener('click',render);for(const e of document.querySelectorAll('select'))e.addEventListener('change',render);render();
+</script></html>
