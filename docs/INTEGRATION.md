@@ -1,21 +1,15 @@
-# 播放器接入验收
+# 渐变绘制实现参考
 
-## 现有弹幕系统
-1. 保留原 API 请求、响应外壳、轨道、滚动、字体和媒体时间。
-2. 响应模型保留每条评论的可选 danmux 扩展，不在转换中丢失；服务端关闭渐变时无需再请求配置接口。
-3. 单条 Canvas 绘制入口调用 drawDanmuxComment；handled=false 才调用原有绘制。
-4. 坐标传左侧 x/中线 y；绑定当前宿主字体和透明度。保持宿主 DPR/缩放，勿创建第二弹幕层。
-5. 客户端旧缓存按其原刷新机制处理；服务端开关不能立即改变已缓存的数据。
+完整播放器接入指南、请求、字段与降级约定维护在 [danmu_api 播放器渐变接入指南](https://github.com/xlmc/danmu_api/blob/main/docs/player-gradient-integration.md)。
 
-## 必须验收
-- 无扩展/关开关/概率为零：原弹幕不丢、颜色与样式不变。
-- 合法 fill/stroke：方向、色标、alpha 正确，不重新抽概率或选色。
-- 未知版本、非法效果、纹理：Base 降级；同一批其他弹幕不受影响。
-- 暂停/拖动/倍速：使用宿主媒体时间，无独立调度偏移。
-- 尺寸/DPR/全屏：坐标与字号正确，没有额外画布或重复绘制。
-- 退出/重开：无事件/动画循环泄漏，不移除宿主画布。
+| 需要参考的实现 | 代码 |
+| --- | --- |
+| 效果读取与校验 | [gradient-effect.js](../src/gradient-effect.js) |
+| 单条 Canvas 绘制、渐变方向与端点 | [canvas-painter.js](../src/canvas-painter.js) |
+| 白芯、描边、透明度和高光等视觉参数 | [material.js](../src/material.js) |
+| 在宿主画布上调用、原绘制兜底 | [轻量示例](../examples/existing-canvas.html) |
+| 可选的完整调度与生命周期 | [danmux-canvas-renderer.js](../src/danmux-canvas-renderer.js) |
 
-## 本次证据边界
-自动测试包含共享协议、Canvas 绘制调用及状态恢复、完整渲染器暂停/seek/尺寸/清理；Web 示例验证浏览器视觉及开关降级。自动测试的模拟媒体事件不等于真实设备视频验收。
+Canvas 示例传文字框左侧 x 与中线 y，沿用宿主字体、缩放和透明度。其他绘制栈需转换自己的字形基线，并对应文字度量、渐变创建和填充/描边 API。轻量绘制没有额外时钟、网络请求或自有画布资源。
 
-Sen/Hills 专用适配还需要：平台与绘制库版本、弹幕响应结构、单条绘制函数签名、字体/位置/生命周期接口、可运行测试构建或作者配合。取得这些后交付平台桥接实现和对应接入 diff，而不是要求作者翻译整套 JS。此仓库尚未提供 Swift/Kotlin 原生实现。
+测试样例展示效果与降级，完整 video 示例展示时间同步。这些代码提供实现参考；具体播放器需要在自身构建中检查接口解码、播放操作与画面。接入检查项见 [API 指南](https://github.com/xlmc/danmu_api/blob/main/docs/player-gradient-integration.md#6-接入检查)。

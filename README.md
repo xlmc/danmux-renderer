@@ -1,17 +1,14 @@
 # danmux-renderer
 
-给需要适配 DanmuX 的播放器提供效果实现、可复用绘制入口和接入示例。不是视频播放器，也不要求已有播放器替换弹幕调度。
+本仓库提供 danmu_api 渐变弹幕的技术方案、Canvas 2D 参考代码和可运行示例，供播放器作者理解效果实现并映射到自己的绘制技术。
 
-三个项目分工：
-- [danmu_api](https://github.com/xlmc/danmu_api)：按服务器开关/概率输出最终弹幕数据。
-- [DanmuX](https://github.com/xlmc/danmux)：定义数据契约、效果校验及降级规则。
-- 本仓库：把效果画出来，并提供播放器接入方式。
+**播放器接入从 [danmu_api 渐变接入指南](https://github.com/xlmc/danmu_api/blob/main/docs/player-gradient-integration.md) 开始。** 请求、开关、响应字段及降级约定在该指南维护；这里说明具体怎样绘制。已有代码可以直接复用，也可以作为原生绘制的参考。当前实现为 Web Canvas 2D，原生客户端需要自己的绘制实现。
 
-当前交付是 **Web Canvas 2D 实现**。Sen/Hills 的原生适配未完成，需要取得客户端响应模型及绘制接口；不能把 Web 示例、合成数据或可移植说明视为原生客户端验收。
+## 绘制实现
 
-## 接入路径 A：已有弹幕系统（优先推荐）
+### 在现有文字绘制入口调用
 
-无需更换请求 URL，也无需开启 `format=danmux`。服务端普通 JSON 的每条评论保留 `p/m`，可选附加 `danmux`。
+读取评论数据后，复用播放器提供的 Canvas 上下文和文字位置：
 
 ```js
 import { drawDanmuxComment } from 'danmux-renderer/paint';
@@ -35,7 +32,7 @@ if (!result.handled) {
 
 运行 `npm run demo`，打开 [轻量接入示例](http://127.0.0.1:4174/examples/existing-canvas.html)。示例复用同一块宿主画布，展示开关、非法效果和未知版本的原绘制兜底。
 
-## 接入路径 B：需要完整弹幕层
+### 完整调度演示
 
 ```js
 import { DanmuxCanvasRenderer } from 'danmux-renderer';
@@ -63,16 +60,13 @@ renderer.destroy();
 
 示例：`native-video.html`（本地视频/虚拟时钟）、`artplayer.html`、`dplayer.html`。后两者是模板，不代表完成第三方版本兼容验收。
 
-## 协议与材质分离
+## 视觉实现与预设
 
-默认 `material.profile:'wire'`：
-- linear fill → 渐变填充；linear stroke → 渐变描边，字芯保持 Base 颜色。
-- angle 0° 向右、顺时针；严格使用服务端 stops 与 alpha。
-- extensionVersion 必须为 1；未知版本、纹理、非法效果降级。每个效果独立隔离；不下载远程纹理。
+`material.profile:'wire'` 是默认实现：将读取到的填充和描边效果分别交给 Canvas 的 `fillText` 和 `strokeText`。渐变几何见 [canvas-painter.js](src/canvas-painter.js) 的 `createLinearGradient`：按文字框尺寸计算方向和端点，再添加服务端提供的色标。
 
-`material.profile:'bilibili'` 是 **显式的视觉预设**：把线性填充效果用于白芯＋渐变描边、柔化、高光，沿用旧 demo 参数。它不是 `target:fill` 的通用协议含义，也不代表还原所有 B 站原生纹理。完整旧示例明确选择此预设，通用接入不自动选择。
+`material.profile:'bilibili'` 是显式视觉预设，采用白色字芯、柔化的渐变描边和高光，沿用旧 demo 参数。可用 `material:{profile:'bilibili'}` 选择；完整旧示例使用此预设。具体参数见 [material.js](src/material.js)。
 
-迁移旧代码：如要保留原观感，构造时加 `material:{profile:'bilibili'}`；旧无版本合成数据需补 `danmux.extensionVersion:1`。不要自动把缺失版本当 v1，否则无法保证版本隔离。
+按播放器自己的绘制栈实现时，替换文字度量、线性渐变创建和文字填充/描边调用即可；已有弹幕系统继续提供位置、字体与时间。参考代码中的服务端字段读取规则以 [API 接入指南](https://github.com/xlmc/danmu_api/blob/main/docs/player-gradient-integration.md#3-最小字段约定) 为准。
 
 ## 安装与验证
 
@@ -102,4 +96,4 @@ npm run typecheck
 
 维护者可执行 `node scripts/check-api.mjs <danmu_api目录>`，用实际服务端转换/普通 JSON 输出验证开关、零概率和偏移后效果可被 renderer 读取（本地合成输入，不访问上游平台）。
 
-详见 [接入验收清单](docs/INTEGRATION.md)。
+播放器接入检查统一见 [API 接入指南](https://github.com/xlmc/danmu_api/blob/main/docs/player-gradient-integration.md#6-接入检查)；绘制代码索引见 [实现参考](docs/INTEGRATION.md)。
