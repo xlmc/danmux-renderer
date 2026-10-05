@@ -5,3 +5,6 @@ Thumbs.db
 
 node_modules/
 *.tgz
+mobile/android/.gradle/
+mobile/android/build/
+mobile/android/local.properties

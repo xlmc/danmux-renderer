@@ -1,8 +1,14 @@
 # danmux-renderer
 
-本仓库提供 danmu_api 渐变弹幕的技术方案、Canvas 2D 参考代码和可运行示例，供播放器作者理解效果实现并映射到自己的绘制技术。
+本仓库提供 danmu_api 渐变弹幕的技术方案、Android/Kotlin 与 Canvas 2D 参考代码，供播放器作者理解效果实现并复用现有文字绘制入口。
 
-**播放器接入从 [danmu_api 渐变接入指南](https://github.com/xlmc/danmu_api/blob/main/docs/player-gradient-integration.md) 开始。** 请求、开关、响应字段及降级约定在该指南维护；这里说明具体怎样绘制。已有代码可以直接复用，也可以作为原生绘制的参考。当前实现为 Web Canvas 2D，原生客户端需要自己的绘制实现。
+**播放器接入从 [danmu_api 渐变接入指南](https://github.com/xlmc/danmu_api/blob/main/docs/player-gradient-integration.md) 开始。** 请求、开关、响应字段及降级约定在该指南维护；这里说明具体怎样绘制。
+
+## 移动端参考
+
+[移动端绘制参考](mobile/README.md) 将样式解析、文字准备和每帧绘制分开。[Android/Kotlin 实现](mobile/android/README.md) 提供两个可复制文件：加载时读取线性填充，在原文字填充入口临时使用准备好的 shader。沿用宿主模型、字体、透明度和调度，无需 JS 运行时。Flutter/iOS 提供 API 映射方向，尚无可运行移植。
+
+构建与共享契约、原生图形测试方法见 Android README。此参考不表示已在 Sen/Hills 或其他播放器完成实际接入。
 
 ## 绘制实现
 
@@ -90,7 +96,7 @@ npm run typecheck
 
 零运行时依赖，ES Module；类型检查使用 TypeScript 开发依赖。静态页面可直接相对导入 `../src/paint.js`，不依赖 bundler。
 
-验证器直接来自 DanmuX 的可移植源码，随包附 MIT 许可证、commit 和按 LF 规范化的 SHA-256 清单，避免独立手写两套协议。共享样例在 DanmuX `fixtures/client-linear-v1.json`，此包携带相同副本。
+JS 验证器直接来自 DanmuX 的可移植源码，随包附 MIT 许可证、commit 和按 LF 规范化的 SHA-256 清单。共享样例在 DanmuX `fixtures/client-linear-v1.json`，此包携带相同副本。Android 是独立的最小线性填充移植，通过共享样例和从 JS 验证器生成的边界样例对照测试约束行为；不宣称整个 DanmuX 协议等价。
 
 维护者用 `node scripts/sync-contract.mjs <danmux目录>` 同步，再运行 `npm run check:contract -- <danmux目录>`、全部测试和打包检查。CI 检查清单哈希及共享行为，更新必须显式评审，不自动追踪上游 main。
 

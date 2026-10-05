@@ -18,7 +18,11 @@ if(typeof drawDanmuxComment!=='function'||typeof readCommentStyle!=='function'||
 console.log('Packed root and paint imports passed without DOM');`;
  writeFileSync(join(consumer,'smoke.mjs'),smoke);
  console.log(execFileSync(process.execPath,['--conditions=browser','smoke.mjs'],{cwd:consumer,encoding:'utf8'}));
- for(const file of ['types/index.d.ts','types/paint.d.ts','vendor/danmux/LICENSE','vendor/danmux/manifest.json']) readFileSync(join(consumer,'node_modules/danmux-renderer',file));
+ for(const file of ['types/index.d.ts','types/paint.d.ts','vendor/danmux/LICENSE','vendor/danmux/manifest.json',
+  'mobile/README.md','mobile/android/README.md',
+  'mobile/android/src/main/kotlin/io/github/xlmc/danmu/gradient/GradientStyle.kt',
+  'mobile/android/src/main/kotlin/io/github/xlmc/danmu/gradient/GradientPainter.kt']) readFileSync(join(consumer,'node_modules/danmux-renderer',file));
+ if(pack.files.some(file=>/^mobile\/android\/(build|\.gradle)\//.test(file.path))) throw Error('Android build artifacts must not be packaged');
  writeFileSync(join(consumer,'consumer.ts'),readFileSync(new URL('./typecheck.ts',import.meta.url)));
  execFileSync(process.execPath,[resolve('node_modules/typescript/lib/tsc.js'),'--noEmit','--strict','--module','nodenext','--target','ES2022',join(consumer,'consumer.ts')],{cwd:process.cwd(),encoding:'utf8'});
  console.log(`Package verified: ${pack.filename}; ${pack.files.length} files`);
