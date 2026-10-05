@@ -8,3 +8,6 @@ node_modules/
 mobile/android/.gradle/
 mobile/android/build/
 mobile/android/local.properties
+mobile/apple/.build/
+mobile/apple/.swiftpm/
+mobile/apple/Tests/GradientReferenceTests/Fixtures/

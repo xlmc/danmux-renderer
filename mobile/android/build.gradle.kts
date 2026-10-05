@@ -21,8 +21,8 @@ android {
 
 val generateContract by tasks.registering(Exec::class) {
     workingDir(rootDir.resolve("../.."))
-    commandLine("node", "scripts/android-contract.mjs", layout.buildDirectory.dir("generated/contract").get().asFile.absolutePath)
-    inputs.files(rootDir.resolve("../../src/gradient-effect.js"), fileTree(rootDir.resolve("../../vendor/danmux")), rootDir.resolve("../../scripts/android-contract.mjs"))
+    commandLine("node", "scripts/native-contract.mjs", layout.buildDirectory.dir("generated/contract").get().asFile.absolutePath)
+    inputs.files(rootDir.resolve("../../src/gradient-effect.js"), fileTree(rootDir.resolve("../../vendor/danmux")), rootDir.resolve("../../scripts/native-contract.mjs"))
     outputs.dir(layout.buildDirectory.dir("generated/contract"))
 }
 tasks.matching { it.name == "processDebugUnitTestJavaRes" || it.name == "processReleaseUnitTestJavaRes" }.configureEach {

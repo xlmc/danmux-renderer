@@ -1,0 +1,14 @@
+name: Apple reference
+on: [push, pull_request]
+jobs:
+  apple:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/native-contract.mjs mobile/apple/Tests/GradientReferenceTests/Fixtures
+      - run: swift test --package-path mobile/apple
+      - run: xcodebuild -scheme GradientReference -destination 'generic/platform=iOS' -derivedDataPath /tmp/gradient-ios CODE_SIGNING_ALLOWED=NO build
+        working-directory: mobile/apple
